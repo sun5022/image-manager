@@ -3,7 +3,9 @@
 키보드만으로 사진을 넘겨 보며 여러 폴더로 분류하는 듀얼 패널 이미지 관리자입니다.
 왼손은 사진 넘기기, 오른손은 보낼 폴더 고르기 — 양손을 동시에 씁니다.
 
-![화면](images/screenshot_sample_sorting.png)
+![시연 — 키보드로 과일·탈것·강아지 분류 (1.5배속)](images/demo.gif)
+
+시연 영상 원본(MP4, 23초): [images/demo.mp4](images/demo.mp4)
 
 - 무료 · 오픈소스 (Apache License 2.0)
 - macOS · Linux · Windows
