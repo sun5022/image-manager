@@ -1,0 +1,5 @@
+PySide6>=6.5
+send2trash
+py7zr
+rarfile
+pyobjc-framework-Cocoa; sys_platform == "darwin"

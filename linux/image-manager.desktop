@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Image Manager
+Comment=Dual-panel image manager (Qt6/PySide6)
+Exec=image-manager
+Icon=image-manager
+Terminal=false
+Categories=Graphics;FileManager;Utility;
+StartupWMClass=Image Manager
+Keywords=image;photo;manager;classify;copy;move;
