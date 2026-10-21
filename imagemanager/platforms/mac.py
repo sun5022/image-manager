@@ -259,10 +259,10 @@ def install_key_monitor(window):
         kc = {
             0x0D: lambda: window._move_source_cursor(-1),    # W
             0x01: lambda: window._move_source_cursor(+1),    # S
-            0x00: lambda: window._goto_sibling_image(-1),    # A
-            0x02: lambda: window._goto_sibling_image(+1),    # D
-            0x0C: window._source_up,                          # Q
-            0x0E: window._source_enter,                       # E
+            0x00: window._source_up,                          # A — 상위 폴더 (0.6.3)
+            0x02: window._source_enter,                       # D — 폴더 진입
+            0x0C: lambda: window._goto_sibling_image(-1),    # Q — 이전 사진
+            0x0E: lambda: window._goto_sibling_image(+1),    # E — 다음 사진
             0x08: lambda: window._run_file_op("copy"),       # C
             0x31: lambda: window._run_file_op("move"),       # Space
             0x2E: lambda: window._run_file_op("move"),       # M

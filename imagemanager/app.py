@@ -54,7 +54,7 @@ IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".tiff", ".tif",
 ARCHIVE_EXTS = {".zip", ".cbz", ".rar", ".cbr", ".7z", ".cb7"}
 APP_ORG = "udevapp"
 APP_NAME = "ImageManager"
-APP_VERSION = "0.6.1"
+APP_VERSION = "0.6.3"
 APP_AUTHOR = "유데브앱 최형선 (UDevApp, HyungSun Choi)"
 APP_LICENSE = "Apache License 2.0"
 APP_SITE = "https://udevapp.co.kr"
@@ -1103,6 +1103,9 @@ class MainWindow(QMainWindow):
         sh_lay.setSpacing(4)
         self.source_path_lbl = QLabel("")
         self.source_path_lbl.setStyleSheet("color: #aaa; font-size: 10pt;")
+        # 긴 경로가 창 최소 폭을 붙잡지 않게 — 좁으면 뒤가 잘리고, 전체 경로는 툴팁 (세로 녹화용 좁은 창, 0.6.2)
+        self.source_path_lbl.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.source_path_lbl.setMinimumWidth(1)
         sh_lay.addWidget(self.source_path_lbl, 1)
         home_btn = QToolButton()
         home_btn.setText("⌂")
@@ -1116,6 +1119,7 @@ class MainWindow(QMainWindow):
         open_btn.clicked.connect(self._pick_source_folder)
         sh_lay.addWidget(open_btn)
         self.source_tree.pathChanged.connect(self.source_path_lbl.setText)
+        self.source_tree.pathChanged.connect(self.source_path_lbl.setToolTip)
 
         right_bottom = QWidget(self)
         rb_lay = QVBoxLayout(right_bottom)
@@ -1141,8 +1145,8 @@ class MainWindow(QMainWindow):
         self.main_splitter.addWidget(self.left)
         self.main_splitter.setStretchFactor(0, 2)
         self.main_splitter.setStretchFactor(1, 1)
-        # 타겟 스택 최소 폭 — 헤더(번호·폴더명·✕)와 + 버튼이 잘리지 않게
-        self.left.setMinimumWidth(340)
+        # 타겟 스택 최소 폭 — 헤더(번호·폴더명·✕)와 + 버튼이 잘리지 않게. 340 → 260 (세로 9:16 녹화 창 540px 용, 0.6.2)
+        self.left.setMinimumWidth(260)
         self.main_splitter.setChildrenCollapsible(False)
         self.setCentralWidget(self.main_splitter)
 
@@ -1561,7 +1565,8 @@ class MainWindow(QMainWindow):
 
         plain = not (mods & (Qt.ControlModifier | Qt.AltModifier))
 
-        # 왼손 = 왼쪽 source: W/S 커서 · A/D 이전/다음 이미지 · Q 상위 · E 진입
+        # 왼손 = 왼쪽 source — W/A/S/D 를 화살표처럼 (0.6.3, 사용자 결정 2026-10-22):
+        #   W/S 커서 · A 상위 폴더 · D 폴더 진입 (타겟 쪽 ←/→ 와 짝) · Q/E 이전/다음 사진(폴더 건너뜀)
         if plain and key == Qt.Key_W:
             self._move_source_cursor(-1)
             return True
@@ -1569,16 +1574,16 @@ class MainWindow(QMainWindow):
             self._move_source_cursor(+1)
             return True
         if plain and key == Qt.Key_A:
-            self._goto_sibling_image(-1)
-            return True
-        if plain and key == Qt.Key_D:
-            self._goto_sibling_image(+1)
-            return True
-        if plain and key == Qt.Key_Q:
             self._source_up()
             return True
-        if plain and key == Qt.Key_E:
+        if plain and key == Qt.Key_D:
             self._source_enter()
+            return True
+        if plain and key == Qt.Key_Q:
+            self._goto_sibling_image(-1)
+            return True
+        if plain and key == Qt.Key_E:
+            self._goto_sibling_image(+1)
             return True
 
         # 왼손 액션: C 복사 · Space/M 이동 (source → Active 타겟)

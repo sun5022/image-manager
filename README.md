@@ -15,7 +15,7 @@
 
 - **타겟 폴더 여러 개** — 오른쪽에 폴더 패널을 원하는 만큼 쌓고, 패널 안에서 하위 폴더까지 트리로 탐색
 - **패널마다 미니 프리뷰** — 어느 폴더에 무엇이 들어 있는지 바로 확인
-- **양손 분리 키 배치** — 왼손(WASD·Q/E) = 소스 사진, 오른손(화살표·1~9) = 타겟 폴더. 키가 겹치지 않음
+- **양손 분리 키 배치** — 왼손 WASD 는 화살표처럼(W/S 위아래 · A 상위 · D 진입) = 소스, 오른손(화살표·1~9) = 타겟 폴더. 키가 겹치지 않음
 - **보내기 한 번** — `Space` 이동 / `C` 복사, 이동 후 다음 사진 자동 선택
 - **숫자 한 번에 분류** — `Shift+1~9` = 그 번호 폴더로 바로 이동
 - **Enter 로 이동** — 오른손만으로 분류. 설정에서 폴더 진입 · 복사로 바꿀 수 있음
@@ -37,9 +37,9 @@
 | 키 | 동작 |
 |----|------|
 | W / S | 커서 위 / 아래 |
-| A / D | 이전 / 다음 사진 (폴더는 건너뜀) |
-| Q | 상위 폴더 (압축파일 안이면 압축파일이 있던 폴더로) |
-| E | 폴더 · 압축파일 진입 |
+| A | 상위 폴더 (압축파일 안이면 압축파일이 있던 폴더로) |
+| D | 폴더 · 압축파일 진입 |
+| Q / E | 이전 / 다음 사진 (폴더는 건너뜀) |
 
 **보내기 — 고른 사진 → 오른쪽 활성 폴더**
 
@@ -92,6 +92,32 @@
 | Tab | 정보 카드 보기 / 안 보기 |
 | ` | 하단 바 고정 |
 | Esc · V · 클릭 | 닫기 |
+
+## 다운로드 (macOS 앱) 와 해시 확인
+
+[Releases](https://github.com/sun5022/image-manager/releases/latest) 에서 `ImageManager-0.6.3-mac.zip` 을 받아 압축을 풀고 「응용 프로그램」 폴더로 옮기면 됩니다. Windows · Linux 는 아래 「설치와 실행」대로 소스로 실행합니다.
+
+받은 파일이 올린 파일과 같은지 **SHA-256 해시**로 확인할 수 있습니다.
+
+| 파일 | SHA-256 |
+|------|---------|
+| `ImageManager-0.6.3-mac.zip` | `2f4d4e154f01895d3351b17785575d487d8ad914320e0f309e04132d1fc71bfc` |
+
+| OS | 확인 명령 |
+|----|-----------|
+| macOS | `shasum -a 256 ImageManager-0.6.3-mac.zip` |
+| Windows (PowerShell) | `Get-FileHash ImageManager-0.6.3-mac.zip -Algorithm SHA256` |
+| Windows (명령 프롬프트) | `certutil -hashfile ImageManager-0.6.3-mac.zip SHA256` |
+| Linux | `sha256sum ImageManager-0.6.3-mac.zip` |
+
+명령 대신 웹에서 확인하려면:
+- [Online SHA256 File Checksum](https://emn178.github.io/online-tools/sha256_checksum.html) — 파일을 끌어다 놓으면 브라우저 안에서 계산합니다(파일이 서버로 올라가지 않음)
+- [VirusTotal](https://www.virustotal.com) — 해시 값으로 검색하면 악성코드 검사 결과도 볼 수 있습니다(파일을 직접 올리면 그 파일이 공개되니, 해시 검색을 권합니다)
+
+**처음 열 때 (macOS)** — 개인 인증서로 서명했고 Apple 공증은 받지 않아서 「확인되지 않은 개발자」 경고가 뜹니다.
+시스템 설정 → 개인정보 보호 및 보안 → 아래쪽 「그래도 열기」를 누르면 됩니다(한 번만).
+서명 확인: `codesign -dv /Applications/ImageManager.app` → `Identifier=com.udevapp.ImageManager`
+(서명 인증서 「UDevApp Code Signing」 SHA-256 지문 `7B:80:FB:07:11:2F:06:46:03:F8:E0:74:AE:8A:CD:E6:82:4B:63:93:09:6C:39:44:61:63:15:8D:80:74:8C:24`)
 
 ## 설치와 실행
 

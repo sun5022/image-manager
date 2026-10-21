@@ -332,6 +332,30 @@ def s22():
         fs.close()
 
 
+
+def s23():
+    # 0.6.3 왼손 키: A 상위 · D 진입 · Q/E 이전/다음 사진 (실제 전달 경로)
+    os.makedirs(os.path.join(U, "zsub"), exist_ok=True)
+    w._cursor_on_file(os.path.join(U, "photo_12.png"))
+    w.source_tree.setFocus()
+    qkey(w.source_tree, Qt.Key_E)
+    check("[0.6.3] E → 다음 사진", name(w.source_tree.current_path()) == "photo_13.png", name(w.source_tree.current_path()))
+    qkey(w.source_tree, Qt.Key_Q)
+    check("[0.6.3] Q → 이전 사진", name(w.source_tree.current_path()) == "photo_12.png", name(w.source_tree.current_path()))
+    qkey(w.source_tree, Qt.Key_A)
+    check("[0.6.3] A → 상위 폴더", os.path.abspath(w.source_tree.current_root_path()) == os.path.abspath(D),
+          w.source_tree.current_root_path())
+
+
+def s24():
+    # 상위 폴더에서 unsorted 에 커서 → D 로 진입
+    view = w._proxy.mapFromSource(w._right_fs.index(U))
+    w.source_tree.selectionModel().setCurrentIndex(view, im.QItemSelectionModel.ClearAndSelect | im.QItemSelectionModel.Rows)
+    qkey(w.source_tree, Qt.Key_D)
+    check("[0.6.3] D → 폴더 진입", os.path.abspath(w.source_tree.current_root_path()) == os.path.abspath(U),
+          w.source_tree.current_root_path())
+
+
 def s18():
     # 설정 창
     QTimer.singleShot(300, poke_settings)
@@ -378,7 +402,7 @@ def finish():
     app.exit(0 if ok == n else 1)
 
 
-steps = [s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s14b, s15, s16, s17, s17b, s19, s20, s21, s22, s18, finish]
+steps = [s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s14b, s15, s16, s17, s17b, s19, s20, s21, s22, s23, s24, s18, finish]
 
 
 def busy():
