@@ -54,7 +54,7 @@ IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".tiff", ".tif",
 ARCHIVE_EXTS = {".zip", ".cbz", ".rar", ".cbr", ".7z", ".cb7"}
 APP_ORG = "udevapp"
 APP_NAME = "ImageManager"
-APP_VERSION = "0.6.3"
+APP_VERSION = "0.6.4"
 APP_AUTHOR = "유데브앱 최형선 (UDevApp, HyungSun Choi)"
 APP_LICENSE = "Apache License 2.0"
 APP_SITE = "https://udevapp.co.kr"
@@ -245,7 +245,7 @@ class FullscreenViewer(QWidget):
     INFO_MODES = {"show": None, "1": 1000, "5": 5000, "10": 10000, "hide": -1}   # 설정값 → 숨김까지 ms (None=계속, -1=안 보기)
 
     def __init__(self, parent, files: list, idx: int, on_change, on_close, info_mode: str = "5",
-                 at_end: str = "wrap", on_folder=None):
+                 at_end: str = "folder", on_folder=None):
         super().__init__(parent, Qt.Window | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setStyleSheet("background: black;")
@@ -1264,7 +1264,7 @@ class MainWindow(QMainWindow):
                      (lambda d, panel=(panel if kind == "target" else None): self._fullscreen_sibling_folder(d, panel)))
         self._fullscreen = FullscreenViewer(self, files, idx, on_change, self._fullscreen_closed,
                                             info_mode=getattr(self, "_pref_fullscreenInfo", "5"),
-                                            at_end=getattr(self, "_pref_fullscreenAtEnd", "wrap"),
+                                            at_end=getattr(self, "_pref_fullscreenAtEnd", "folder"),
                                             on_folder=on_folder)
         # 창이 어떤 경로로 사라지든(닫기·삭제) 「열려 있음」 표시를 지운다
         self._fullscreen.destroyed.connect(lambda *_: setattr(self, "_fullscreen", None))
@@ -1687,7 +1687,7 @@ class MainWindow(QMainWindow):
             ("10", "10초 후 숨김", "사진을 넘길 때마다 10초만 보여 주고 감춥니다 (Tab 으로 다시 보기)"),
             ("hide", "안 보기", "정보창을 띄우지 않습니다 (전체화면에서 Tab 을 누르면 그때만 보임)"),
         ]),
-        ("fullscreenAtEnd", "전체화면 끝에서 (마지막/처음 이미지에서 넘길 때)", "wrap", [
+        ("fullscreenAtEnd", "전체화면 끝에서 (마지막/처음 이미지에서 넘길 때)", "folder", [   # 기본 = 폴더 넘김 (0.6.4, 사용자 결정)
             ("wrap", "다시 처음으로 돌아가기", "마지막 다음은 첫 이미지로 갑니다 (「처음 이미지입니다」 표시)"),
             ("folder", "다음/이전 폴더로 넘어가기", "같은 상위 폴더 안의 다음/이전 폴더(이미지 있는)로 넘어가고, 그 트리(소스 또는 타겟 패널)도 그 폴더로 옮깁니다"),
             ("stop", "아무것도 하지 않음", "끝에서 멈추고 「마지막/처음 이미지입니다」만 표시합니다"),

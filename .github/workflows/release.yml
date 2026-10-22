@@ -26,6 +26,9 @@ jobs:
           - os: ubuntu-22.04
             asset: ImageManager-linux.tar.gz
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,6 +42,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller pillow
       - name: 테스트 (화면 없이)
+        timeout-minutes: 5
         shell: bash
         run: |
           if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update -qq && sudo apt-get install -y -qq libegl1 libxkbcommon0 libgl1 >/dev/null; fi
@@ -61,7 +65,9 @@ jobs:
 
   checksums:
     needs: build
+    if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: SHA256SUMS.txt (릴리스의 모든 실행 파일)
         env:

@@ -19,6 +19,10 @@ import tempfile
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
+# 감시 타이머 — 어디서 멈춰도 2분 뒤 모든 스레드의 위치를 찍고 종료 (CI 가 몇 시간씩 매달리지 않게, 2026-10-22 윈도우 CI 실측)
+import faulthandler  # noqa: E402
+faulthandler.dump_traceback_later(int(os.environ.get("IMGMGR_TEST_TIMEOUT", "120")), exit=True)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SAMPLE = os.path.join(os.path.dirname(HERE), "sample", "unsorted")
 if len(sys.argv) > 1:
@@ -160,8 +164,10 @@ def s10():
                  (Qt.Key_Up, Qt.ShiftModifier), (Qt.Key_Up, Qt.ShiftModifier)]:
         press(w.left.active_panel().tree, k, m or Qt.NoModifier)
         seq.append(active())
-    want = ["fruit:-", "vehicle:-", "vehicle:car", "vehicle:ship", "dog:-", "vehicle:-", "fruit:-"]
-    check("↑/↓ 끝에서 패널 넘김 · Shift+↑/↓ 패널 이동 · 패널 진입 시 커서 비움", seq == want, f"{seq}")
+    # 하위 폴더(car·ship) 순서는 파일 시스템·정렬 적용 시점에 따라 달라질 수 있다(리눅스 CI 실측) → 순서 무관 비교
+    ok = (seq[:2] == ["fruit:-", "vehicle:-"] and sorted(seq[2:4]) == ["vehicle:car", "vehicle:ship"]
+          and seq[4:] == ["dog:-", "vehicle:-", "fruit:-"])
+    check("↑/↓ 끝에서 패널 넘김 · Shift+↑/↓ 패널 이동 · 패널 진입 시 커서 비움", ok, f"{seq}")
     w._cursor_on_file(os.path.join(U, "photo_04.png"))
 
 
@@ -239,10 +245,12 @@ def s17b():
     qkey(w.preview, Qt.Key_Down, Qt.ShiftModifier)
     check("실전달: 미리보기 포커스에서 Shift+↓ → 다음 패널", name(w.left.active_panel().path()) == "dog", active())
     w.left.select_at(1)
-    qkey(w.left.active_panel().tree, Qt.Key_Down)   # car
-    qkey(w.left.active_panel().tree, Qt.Key_Right)  # car 로 진입
-    check("실전달: 타겟 트리에서 → = 하위 폴더 진입(펼치기 아님)", name(w.left.active_panel().tree.current_root_path()) == "car",
-          w.left.active_panel().tree.current_root_path())
+    qkey(w.left.active_panel().tree, Qt.Key_Down)   # 첫 하위 폴더 (car 또는 ship — 정렬 시점에 따라)
+    target_sub = name(w.left.active_panel().tree.current_path())
+    qkey(w.left.active_panel().tree, Qt.Key_Right)  # 그 폴더로 진입
+    check("실전달: 타겟 트리에서 → = 하위 폴더 진입(펼치기 아님)",
+          target_sub in ("car", "ship") and name(w.left.active_panel().tree.current_root_path()) == target_sub,
+          f"{target_sub} → {w.left.active_panel().tree.current_root_path()}")
     qkey(w.left.active_panel().tree, Qt.Key_Left)
     check("실전달: ← = 상위 폴더", name(w.left.active_panel().tree.current_root_path()) == "vehicle",
           w.left.active_panel().tree.current_root_path())
@@ -417,6 +425,7 @@ def run_next(i=0):
     if busy():
         QTimer.singleShot(100, lambda: run_next(i))
         return
+    print(f"… {steps[i].__name__}", flush=True)
     steps[i]()
     if steps[i] is not s18 and steps[i] is not finish:
         QTimer.singleShot(600, no_unexpected_dialog)
