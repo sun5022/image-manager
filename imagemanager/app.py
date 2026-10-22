@@ -54,7 +54,7 @@ IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".tiff", ".tif",
 ARCHIVE_EXTS = {".zip", ".cbz", ".rar", ".cbr", ".7z", ".cb7"}
 APP_ORG = "udevapp"
 APP_NAME = "ImageManager"
-APP_VERSION = "0.6.4"
+APP_VERSION = "0.6.5"
 APP_AUTHOR = "유데브앱 최형선 (UDevApp, HyungSun Choi)"
 APP_LICENSE = "Apache License 2.0"
 APP_SITE = "https://udevapp.co.kr"
@@ -71,7 +71,8 @@ from . import platforms  # noqa: E402
 PLATFORM = platforms.current()     # mac / linux / windows — OS별 차이는 전부 여기로
 logger = logging.getLogger("ImageManager")
 
-EXTRACT_BASE = Path(tempfile.gettempdir()) / "imgmgr_extract"
+# 실제 경로로 — 윈도우 TEMP 가 짧은 이름(ABCDEF~1)이면 Qt 가 주는 긴 경로와 어긋나 압축 판정이 틀린다 (0.6.5)
+EXTRACT_BASE = Path(os.path.realpath(tempfile.gettempdir())) / "imgmgr_extract"
 
 
 # ---------------------------------------------------------------------------
@@ -1976,7 +1977,7 @@ class MainWindow(QMainWindow):
             self._flash("소스 폴더가 올바르지 않습니다.")
             return
         # 소스가 압축파일을 임시로 푼 폴더면 금지 — 앱을 닫을 때 임시 폴더와 함께 지워진다
-        if os.path.abspath(dst_dir).startswith(os.path.abspath(str(EXTRACT_BASE))):
+        if _norm_key(os.path.realpath(dst_dir)).startswith(_norm_key(str(EXTRACT_BASE))):
             self._flash("소스가 압축파일 안(임시 폴더)이라 되돌리지 않습니다 — 압축 밖 폴더로 나간 뒤 다시.")
             return
         if os.path.dirname(os.path.abspath(path)) == os.path.abspath(dst_dir):

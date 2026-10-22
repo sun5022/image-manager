@@ -44,7 +44,7 @@ from PySide6.QtGui import QKeyEvent  # noqa: E402
 from PySide6.QtTest import QTest  # noqa: E402
 from PySide6.QtWidgets import QApplication, QRadioButton  # noqa: E402
 
-D = tempfile.mkdtemp(prefix="imgmgr_test_")
+D = os.path.realpath(tempfile.mkdtemp(prefix="imgmgr_test_"))   # 윈도우 CI: TEMP 가 짧은 이름(RUNNER~1) → 실제 경로로
 shutil.copytree(SAMPLE, os.path.join(D, "unsorted"))
 for d in ("fruit", "vehicle/car", "vehicle/ship", "dog"):
     os.makedirs(os.path.join(D, d))
@@ -69,9 +69,14 @@ def check(name, ok, detail=""):
     print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  — {detail}" if detail and not ok else ""))
 
 
+def norm(p):
+    """경로 비교용 — 실제 경로 + 대소문자·구분자 통일 (윈도우 짧은 이름·슬래시 차이 흡수)."""
+    return os.path.normcase(os.path.realpath(p or ""))
+
+
 def guard():
-    root = os.path.abspath(w.source_tree.current_root_path())
-    if not root.startswith(os.path.abspath(D)):
+    root = w.source_tree.current_root_path()
+    if not norm(root).startswith(norm(D)):
         print("ABORT: 소스 루트가 테스트 폴더 밖:", root)
         os._exit(3)
 
@@ -357,7 +362,7 @@ def s23():
     qkey(w.source_tree, Qt.Key_Q)
     check("[0.6.3] Q → 이전 사진", name(w.source_tree.current_path()) == "photo_12.png", name(w.source_tree.current_path()))
     qkey(w.source_tree, Qt.Key_A)
-    check("[0.6.3] A → 상위 폴더", os.path.abspath(w.source_tree.current_root_path()) == os.path.abspath(D),
+    check("[0.6.3] A → 상위 폴더", norm(w.source_tree.current_root_path()) == norm(D),
           w.source_tree.current_root_path())
 
 
@@ -366,7 +371,7 @@ def s24():
     view = w._proxy.mapFromSource(w._right_fs.index(U))
     w.source_tree.selectionModel().setCurrentIndex(view, im.QItemSelectionModel.ClearAndSelect | im.QItemSelectionModel.Rows)
     qkey(w.source_tree, Qt.Key_D)
-    check("[0.6.3] D → 폴더 진입", os.path.abspath(w.source_tree.current_root_path()) == os.path.abspath(U),
+    check("[0.6.3] D → 폴더 진입", norm(w.source_tree.current_root_path()) == norm(U),
           w.source_tree.current_root_path())
 
 
