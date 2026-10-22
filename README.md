@@ -172,6 +172,4 @@ python3 image_manager.py <폴더|파일> [-t 타겟폴더 ...]
 
 Apache License 2.0 — [LICENSE](LICENSE) · [NOTICE](NOTICE)
 
-- 무료로 쓰고, 고치고, 다시 배포할 수 있습니다(상업적 이용 포함). 고친 소스를 공개할 의무는 없습니다
-- 다시 배포할 때는 **LICENSE 와 NOTICE 파일을 함께** 넣고, 고친 파일에는 고쳤다는 표시를 남겨 주세요
-- Copyright 2026 유데브앱 최형선 (UDevApp, HyungSun Choi)
+Copyright 2026 유데브앱 최형선 (UDevApp, HyungSun Choi)
