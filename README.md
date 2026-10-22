@@ -3,6 +3,15 @@
 키보드만으로 사진을 넘겨 보며 여러 폴더로 분류하는 듀얼 패널 이미지 관리자입니다.
 왼손은 사진 넘기기, 오른손은 보낼 폴더 고르기 — 양손을 동시에 씁니다.
 
+## ⬇ 다운로드 (설치 없이 바로 실행)
+
+| macOS | Windows | Linux |
+|:--:|:--:|:--:|
+| [**ImageManager-mac.zip**](https://github.com/sun5022/image-manager/releases/latest/download/ImageManager-mac.zip) | [**ImageManager-windows.zip**](https://github.com/sun5022/image-manager/releases/latest/download/ImageManager-windows.zip) | [**ImageManager-linux.tar.gz**](https://github.com/sun5022/image-manager/releases/latest/download/ImageManager-linux.tar.gz) |
+| 압축 풀고 「응용 프로그램」으로 | 압축 풀고 `ImageManager.exe` 실행 | 압축 풀고 `ImageManager/ImageManager` 실행 |
+
+항상 최신 판이 받아집니다. 지난 판 · 해시(SHA256SUMS.txt) = [Releases](https://github.com/sun5022/image-manager/releases)
+
 ![시연 — 키보드로 과일·탈것·강아지 분류 (1.5배속)](images/demo.gif)
 
 시연 영상 원본(MP4, 23초): [images/demo.mp4](images/demo.mp4)
@@ -93,31 +102,25 @@
 | ` | 하단 바 고정 |
 | Esc · V · 클릭 | 닫기 |
 
-## 다운로드 (macOS 앱) 와 해시 확인
+## 해시 확인 · 처음 실행할 때
 
-[Releases](https://github.com/sun5022/image-manager/releases/latest) 에서 `ImageManager-0.6.3-mac.zip` 을 받아 압축을 풀고 「응용 프로그램」 폴더로 옮기면 됩니다. Windows · Linux 는 아래 「설치와 실행」대로 소스로 실행합니다.
-
-받은 파일이 올린 파일과 같은지 **SHA-256 해시**로 확인할 수 있습니다.
-
-| 파일 | SHA-256 |
-|------|---------|
-| `ImageManager-0.6.3-mac.zip` | `2f4d4e154f01895d3351b17785575d487d8ad914320e0f309e04132d1fc71bfc` |
+받은 파일이 올린 파일과 같은지 **SHA-256 해시**로 확인할 수 있습니다. 판마다 값은 각 릴리스의 `SHA256SUMS.txt` 에 있습니다.
 
 | OS | 확인 명령 |
 |----|-----------|
-| macOS | `shasum -a 256 ImageManager-0.6.3-mac.zip` |
-| Windows (PowerShell) | `Get-FileHash ImageManager-0.6.3-mac.zip -Algorithm SHA256` |
-| Windows (명령 프롬프트) | `certutil -hashfile ImageManager-0.6.3-mac.zip SHA256` |
-| Linux | `sha256sum ImageManager-0.6.3-mac.zip` |
+| macOS | `shasum -a 256 ImageManager-mac.zip` |
+| Windows (PowerShell) | `Get-FileHash ImageManager-windows.zip -Algorithm SHA256` |
+| Windows (명령 프롬프트) | `certutil -hashfile ImageManager-windows.zip SHA256` |
+| Linux | `sha256sum ImageManager-linux.tar.gz` |
 
 명령 대신 웹에서 확인하려면:
 - [Online SHA256 File Checksum](https://emn178.github.io/online-tools/sha256_checksum.html) — 파일을 끌어다 놓으면 브라우저 안에서 계산합니다(파일이 서버로 올라가지 않음)
 - [VirusTotal](https://www.virustotal.com) — 해시 값으로 검색하면 악성코드 검사 결과도 볼 수 있습니다(파일을 직접 올리면 그 파일이 공개되니, 해시 검색을 권합니다)
 
-**처음 열 때 (macOS)** — 개인 인증서로 서명했고 Apple 공증은 받지 않아서 「확인되지 않은 개발자」 경고가 뜹니다.
-시스템 설정 → 개인정보 보호 및 보안 → 아래쪽 「그래도 열기」를 누르면 됩니다(한 번만).
-서명 확인: `codesign -dv /Applications/ImageManager.app` → `Identifier=com.udevapp.ImageManager`
-(서명 인증서 「UDevApp Code Signing」 SHA-256 지문 `7B:80:FB:07:11:2F:06:46:03:F8:E0:74:AE:8A:CD:E6:82:4B:63:93:09:6C:39:44:61:63:15:8D:80:74:8C:24`)
+**처음 실행할 때**
+- **macOS** — 개인 인증서로 서명했고 Apple 공증은 받지 않아서 「확인되지 않은 개발자」 경고가 뜹니다. 시스템 설정 → 개인정보 보호 및 보안 → 아래쪽 「그래도 열기」(한 번만). 서명 확인: `codesign -dv /Applications/ImageManager.app` → `Identifier=com.udevapp.ImageManager` (인증서 「UDevApp Code Signing」 SHA-256 지문 `7B:80:FB:07:11:2F:06:46:03:F8:E0:74:AE:8A:CD:E6:82:4B:63:93:09:6C:39:44:61:63:15:8D:80:74:8C:24`)
+- **Windows** — 서명하지 않은 프로그램이라 「Windows의 PC 보호」 창이 뜹니다. **추가 정보 → 실행**을 누르면 됩니다(한 번만)
+- **Linux** — 화면 라이브러리가 없으면 `sudo apt install libxcb-cursor0` (Ubuntu 22.04 기준)
 
 ## 설치와 실행
 

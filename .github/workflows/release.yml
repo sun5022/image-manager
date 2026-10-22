@@ -1,0 +1,73 @@
+# 릴리스가 발행되면 Windows · Linux 실행 파일을 만들어 그 릴리스에 붙이고, 모든 파일의 SHA-256 을 SHA256SUMS.txt 로 올린다.
+# 맥 파일(ImageManager-mac.zip)은 개발자 맥에서 고정 서명해 올린다(인증서가 그 맥 키체인에만 있음).
+# 지난 릴리스에 다시 붙이려면: Actions → release → Run workflow → tag 입력
+name: release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "릴리스 태그 (예: v0.6.3)"
+        required: true
+permissions:
+  contents: write
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            asset: ImageManager-windows.zip
+          - os: ubuntu-22.04
+            asset: ImageManager-linux.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 의존성
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller pillow
+      - name: 테스트 (화면 없이)
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update -qq && sudo apt-get install -y -qq libegl1 libxkbcommon0 libgl1 >/dev/null; fi
+          python tests/test_offscreen.py
+      - name: 빌드
+        shell: bash
+        run: pyinstaller --noconfirm --distpath dist --workpath build tools/ImageManager.spec
+      - name: 압축 (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path dist/ImageManager -DestinationPath ${{ matrix.asset }}
+      - name: 압축 (Linux)
+        if: runner.os == 'Linux'
+        run: tar -czf ${{ matrix.asset }} -C dist ImageManager
+      - name: 릴리스에 올리기
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" "${{ matrix.asset }}" --clobber
+
+  checksums:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: SHA256SUMS.txt (릴리스의 모든 실행 파일)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir a && cd a
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" -p 'ImageManager-*'
+          sha256sum ImageManager-* | tee SHA256SUMS.txt
+          gh release upload "$TAG" SHA256SUMS.txt -R "$GITHUB_REPOSITORY" --clobber
