@@ -164,6 +164,10 @@ python3 image_manager.py <폴더|파일> [-t 타겟폴더 ...]
 - `imagemanager/platforms/` — OS마다 다른 부분만 (`mac.py` · `linux.py` · `windows.py`: 휴지통 · 삭제 확인 · 한글 입력 단축키 등)
 - `tests/test_offscreen.py` — 화면 없이 도는 회귀 테스트 (`python tests/test_offscreen.py`)
 
+## 후원
+
+무료로 쓰셔도 됩니다. 도움이 됐다면 [후원 페이지](https://udevapp.co.kr/donate/)(카카오페이)에서 응원해 주세요. 별(★)이나 의견도 큰 힘이 됩니다.
+
 ## 라이선스
 
 Apache License 2.0 — [LICENSE](LICENSE) · [NOTICE](NOTICE)
