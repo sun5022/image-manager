@@ -21,6 +21,12 @@ os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
 # 감시 타이머 — 어디서 멈춰도 2분 뒤 모든 스레드의 위치를 찍고 종료 (CI 가 몇 시간씩 매달리지 않게, 2026-10-22 윈도우 CI 실측)
 import faulthandler  # noqa: E402
+# 윈도우 콘솔(cp1252)에서 한글 출력 시 UnicodeEncodeError → 타이머 안 예외로 다음 단계가 영영 안 불려 멈췄다(CI 실측)
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 faulthandler.dump_traceback_later(int(os.environ.get("IMGMGR_TEST_TIMEOUT", "120")), exit=True)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -426,7 +432,13 @@ def run_next(i=0):
         QTimer.singleShot(100, lambda: run_next(i))
         return
     print(f"… {steps[i].__name__}", flush=True)
-    steps[i]()
+    try:
+        steps[i]()
+    except Exception:                      # 단계 예외 = 즉시 실패 (멈춰서 기다리지 않게)
+        import traceback
+        traceback.print_exc()
+        print(f"ABORT: {steps[i].__name__} 에서 예외", flush=True)
+        os._exit(2)
     if steps[i] is not s18 and steps[i] is not finish:
         QTimer.singleShot(600, no_unexpected_dialog)
     QTimer.singleShot(4000 if steps[i] is s18 else 700, lambda: run_next(i + 1))
