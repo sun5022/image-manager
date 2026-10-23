@@ -1,6 +1,8 @@
 # 릴리스가 발행되면 Windows · Linux 실행 파일을 만들어 그 릴리스에 붙이고, 모든 파일의 SHA-256 을 SHA256SUMS.txt 로 올린다.
 # 맥 파일(ImageManager-mac.zip)은 개발자 맥에서 고정 서명해 올린다(인증서가 그 맥 키체인에만 있음).
 # 지난 릴리스에 다시 붙이려면: Actions → release → Run workflow → tag 입력
+# 스토어 제출용 MSIX 만 받으려면: Run workflow → tag 입력 + msix_only 체크 → 실행 결과 「Artifacts」의 ImageManager-store
+#   (msix_only 는 릴리스 파일·해시를 건드리지 않는다 — 다시 빌드하면 해시가 달라져 README 기록과 어긋나므로)
 name: release
 on:
   release:
@@ -10,6 +12,10 @@ on:
       tag:
         description: "릴리스 태그 (예: v0.6.3)"
         required: true
+      msix_only:
+        description: "스토어 제출용 MSIX 만 만들기 (릴리스 파일·해시는 그대로)"
+        type: boolean
+        default: false
 permissions:
   contents: write
 env:
@@ -38,6 +44,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: 패키징 스크립트 (태그에 없을 수 있어 실행한 브랜치에서)
+        if: runner.os == 'Windows'
+        uses: actions/checkout@v4
+        with:
+          path: _ci
+          sparse-checkout: tools
       - name: 의존성
         shell: bash
         run: |
@@ -59,7 +71,17 @@ jobs:
       - name: 압축 (Linux)
         if: runner.os == 'Linux'
         run: tar -czf ${{ matrix.asset }} -C dist ImageManager
+      - name: MSIX (스토어 제출용 — 서명은 스토어가)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python _ci/tools/make_msix.py dist/ImageManager ImageManager-store.msix --root .
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
+        with:
+          name: ImageManager-store
+          path: ImageManager-store.msix
       - name: 릴리스에 올리기
+        if: ${{ !inputs.msix_only }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -67,7 +89,7 @@ jobs:
 
   checksums:
     needs: build
-    if: always()
+    if: ${{ always() && !inputs.msix_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
